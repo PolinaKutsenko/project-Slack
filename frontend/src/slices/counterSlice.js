@@ -1,18 +1,17 @@
-import { createSlice} from '@reduxjs/toolkit';
-
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    value: 5,
+  value: 5,
 };
 
 const slice = createSlice({
-    name: 'counter',
-    initialState,
-    reducers: {
-        increment: (state) => {
-            state.value+=1;
-        }, 
-    }
+  name: 'counter',
+  initialState,
+  reducers: {
+    increment: (state) => {
+      state.value += 1;
+    },
+  },
 });
 
 export default slice.reducer;
