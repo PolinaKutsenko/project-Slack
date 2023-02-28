@@ -1,8 +1,14 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useFormik } from 'formik';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
+import { useTranslation } from 'react-i18next';
+import axios from 'axios';
+
 import loginPicture from '../assets/loginPicture.jpg';
+import useAuth from '../hooks/index.js';
+import routes from '../routes.js';
 
 const FormContainer = ({ children }) => (
   <div className="container-fluid h-100">
@@ -28,7 +34,13 @@ const FormContainer = ({ children }) => (
 );
 
 const LoginPage = () => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const inputEl = useRef();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [authFailed, setAuthFailed] = useState(false);
 
   useEffect(() => {
     inputEl.current.focus();
@@ -40,19 +52,39 @@ const LoginPage = () => {
       password: '',
     },
     validationSchema: yup.object().shape({
-      username: yup.string().min(6).required('Please enter your username'),
-      password: yup.string().min(6).required('Please enter your password'),
+      username: yup
+        .string()
+        .min(4, t('login_page.validation_errors.username.min'))
+        .required(t('login_page.validation_errors.username.required')),
+      password: yup
+        .string()
+        .matches(/[^а-яА-ЯёЁ,;:&()*%#-]+/, t('login_page.validation_errors.password.matches'))
+        .min(4, t('login_page.validation_errors.password.min'))
+        .required(t('login_page.validation_errors.password.required')),
     }),
-    onSubmit: (values) => {
-      console.log('onsubmit', values);
+    onSubmit: async (values) => {
+      setAuthFailed(false);
+      try {
+        const result = await axios.post(routes.loginPath(), values);
+        auth.logIn(result.data);
+        const { from } = location.state || { from: { pathname: '/' } };
+        navigate(from);
+      } catch (error) {
+        if (error.isAxiosError && error.response.status === 401) {
+          setAuthFailed(true);
+          inputEl.current.select();
+          return;
+        }
+        throw new Error(t('login_page.network_error'));
+      }
     },
   });
 
   return (
     <FormContainer>
-      <Form onSubmit={formik.handleSubmit}>
+      <Form onSubmit={formik.handleSubmit} className="col-12 col-md-6 mt-3 mt-mb-0">
         <Form.Group>
-          <Form.Label htmlFor="username">Username</Form.Label>
+          <Form.Label htmlFor="username">{t('login_page.username')}</Form.Label>
           <Form.Control
             id="username"
             name="username"
@@ -62,11 +94,12 @@ const LoginPage = () => {
             ref={inputEl}
             value={formik.values.username}
             onChange={formik.handleChange}
-          /* isInvalid={authFailed} */
+            isInvalid={authFailed}
           />
+          {formik.errors.username && formik.touched.username && <Form.Control.Feedback type="invalid">{formik.errors.username}</Form.Control.Feedback>}
         </Form.Group>
         <Form.Group>
-          <Form.Label htmlFor="username">Username</Form.Label>
+          <Form.Label htmlFor="password">{t('login_page.password')}</Form.Label>
           <Form.Control
             id="password"
             name="password"
@@ -75,11 +108,12 @@ const LoginPage = () => {
             required
             value={formik.values.password}
             onChange={formik.handleChange}
-          /* isInvalid={authFailed} */
+            isInvalid={authFailed}
           />
-          <Form.Control.Feedback type="invalid">The username or password is incorrect</Form.Control.Feedback>
+          {formik.errors.password && formik.touched.password && <Form.Control.Feedback type="invalid">{formik.errors.password}</Form.Control.Feedback>}
         </Form.Group>
-        <Button type="submit" variant="outline-primary">Submit</Button>
+        {authFailed && <div>{t('login_page.auth_error')}</div>}
+        <Button type="submit" variant="outline-primary">{t('login_page.submit')}</Button>
       </Form>
     </FormContainer>
   );

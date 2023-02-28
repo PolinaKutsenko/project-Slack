@@ -6,15 +6,12 @@ import routes from '../routes.js';
 import Layout from './Layout.jsx';
 import NotFoundPage from './NotFoundPage.jsx';
 import LoginPage from './LoginPage.jsx';
-import ChatPage from './ChatPage.jsx';
-
-///
-const useAuth = () => false;
-///
+import ChatPage from './chatPage/ChatPage.jsx';
+import useAuth from '../hooks/index.js';
 
 const PrivateOutlet = () => {
   const auth = useAuth();
-  return auth ? <Outlet /> : <Navigate to={routes.loginPagePath()} />;
+  return auth.user ? <Outlet /> : <Navigate to={routes.loginPagePath()} />;
 };
 
 const App = () => (
@@ -22,7 +19,7 @@ const App = () => (
     <Routes>
       <Route path={routes.chatPagePath()} element={<Layout />}>
         <Route path={routes.chatPagePath()} element={<PrivateOutlet />}>
-          <Route index element={<ChatPage />} />
+          <Route path="" element={<ChatPage />} />
         </Route>
         <Route path={routes.loginPagePath()} element={<LoginPage />} />
         <Route path="*" element={<NotFoundPage />} />
