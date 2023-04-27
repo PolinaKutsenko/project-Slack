@@ -10,6 +10,8 @@ export default {
       submit: 'Войти',
       auth_error: 'Ошибка авторизации. Неправильный логин или пароль',
       network_error: 'Ошибка сети',
+      have_not_account: 'Нет аккаунта?',
+      sign_up: 'Регистрация',
       validation_errors: {
         username: {
           min: 'Логин должен быть не менее 6 символов',

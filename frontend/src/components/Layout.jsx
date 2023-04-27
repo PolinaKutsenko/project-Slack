@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar, Container, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import useAuth from '../hooks/index.js';
+import { useAuth } from '../hooks/index.js';
 
 const Layout = () => {
   const { t } = useTranslation();

@@ -2,22 +2,23 @@ import { createAsyncThunk, createSlice, createEntityAdapter } from '@reduxjs/too
 import axios from 'axios';
 import routes from '../routes.js';
 
+const DEFAULT_CHANNEL_ID = '1';
+
 export const fetchChannels = createAsyncThunk('channels/fetchChannels', async (header) => {
   const result = await axios.get(routes.dataPath(), { headers: header });
-  console.log(result.data);
   return result.data;
 });
 
 const channelsAdapter = createEntityAdapter();
-const initialState = channelsAdapter.getInitialState({ loadingStatus: 'idle', error: null });
+const initialState = channelsAdapter.getInitialState({ currentChannelId: DEFAULT_CHANNEL_ID, loadingStatus: 'idle', error: null });
 
 const channelsSlice = createSlice({
   name: 'channels',
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1;
-    },
+    addChannel: channelsAdapter.addOne,
+    removeChannel: channelsAdapter.removeOne,
+    updateChannel: channelsAdapter.updateOne,
   },
   extraReducers: (builder) => {
     builder
@@ -27,6 +28,7 @@ const channelsSlice = createSlice({
       })
       .addCase(fetchChannels.fulfilled, (state, action) => {
         channelsAdapter.addMany(state, action.payload.channels);
+        state.currentChannelId = action.payload.currentChannelId;
         state.loadingStatus = 'idle';
         state.error = null;
       })
@@ -38,4 +40,11 @@ const channelsSlice = createSlice({
 });
 
 export default channelsSlice.reducer;
-export const { increment } = channelsSlice.actions;
+export const { actions } = channelsSlice;
+export const selectors = channelsAdapter.getSelectors((state) => state.channels);
+export const getCurrentChannel = (state) => {
+  const { currentChannelId } = state.channels;
+  console.log('currentChannelId', currentChannelId);
+  const currentChannel = selectors.selectById(state, currentChannelId);
+  return currentChannel;
+};

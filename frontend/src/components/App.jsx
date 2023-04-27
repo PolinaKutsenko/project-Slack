@@ -7,7 +7,8 @@ import Layout from './Layout.jsx';
 import NotFoundPage from './NotFoundPage.jsx';
 import LoginPage from './LoginPage.jsx';
 import ChatPage from './chatPage/ChatPage.jsx';
-import useAuth from '../hooks/index.js';
+import { useAuth } from '../hooks/index.js';
+import AuthProvider from '../api/AuthProvider.jsx';
 
 const PrivateOutlet = () => {
   const auth = useAuth();
@@ -15,17 +16,19 @@ const PrivateOutlet = () => {
 };
 
 const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path={routes.chatPagePath()} element={<Layout />}>
-        <Route path={routes.chatPagePath()} element={<PrivateOutlet />}>
-          <Route path="" element={<ChatPage />} />
+  <AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path={routes.chatPagePath()} element={<Layout />}>
+          <Route path={routes.chatPagePath()} element={<PrivateOutlet />}>
+            <Route path="" element={<ChatPage />} />
+          </Route>
+          <Route path={routes.loginPagePath()} element={<LoginPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
-        <Route path={routes.loginPagePath()} element={<LoginPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
-  </BrowserRouter>
+      </Routes>
+    </BrowserRouter>
+  </AuthProvider>
 );
 
 export default App;

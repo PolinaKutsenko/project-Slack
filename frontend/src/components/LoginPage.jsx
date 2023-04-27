@@ -1,37 +1,40 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useFormik } from 'formik';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
 import loginPicture from '../assets/loginPicture.jpg';
-import useAuth from '../hooks/index.js';
+import { useAuth } from '../hooks/index.js';
 import routes from '../routes.js';
 
-const FormContainer = ({ children }) => (
-  <div className="container-fluid h-100">
-    <div className="row justify-content-center align-content-center h-100">
-      <div className="col-12 col-md-8 col-xxl-6">
-        <div className="card shadow-sm">
-          <div className="card-body row p-5">
-            <div className="col-12 col-md-6 d-flex align-items-center justify-content-center">
-              <img src={loginPicture} width="200" height="200" className="rounded-circle" alt="Войти" />
+const FormContainer = ({ children }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="container-fluid h-100">
+      <div className="row justify-content-center align-content-center h-100">
+        <div className="col-12 col-md-8 col-xxl-6">
+          <div className="card shadow-sm">
+            <div className="card-body row p-5">
+              <div className="col-12 col-md-6 d-flex align-items-center justify-content-center">
+                <img src={loginPicture} width="200" height="200" className="rounded-circle" alt="Войти" />
+              </div>
+              {children}
             </div>
-            {children}
-          </div>
-          <div className="card-footer p-4">
-            <div className="text-center">
-              <span>Нет аккаунта?</span>
-              <a href="/signup">Регистрация</a>
+            <div className="card-footer p-4">
+              <div className="text-center">
+                <span>{t('login_page.have_not_account')}</span>
+                <Link to={routes.signupPagePath()}>{t('login_page.sign_up')}</Link>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const LoginPage = () => {
   const auth = useAuth();
